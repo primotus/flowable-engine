@@ -92,6 +92,7 @@
                                 <JAVA_OPTS>-Xmx512M</JAVA_OPTS>
                                 <SERVER_PORT>8080</SERVER_PORT>
                             </environment>
+                            <user>flowable:flowable</user>
                             <entrypoint>
                                 <entrypoint>/flowable-entrypoint.sh</entrypoint>
                             </entrypoint>
@@ -102,7 +103,7 @@
                             <permissions>
                                 <permission>
                                     <file>/flowable-entrypoint.sh</file>
-                                    <mode>544</mode> <!-- Read/execute for owner, read for group/other -->
+                                    <mode>555</mode> <!-- Read/execute for owner, read for group/other -->
                                 </permission>
                             </permissions>
                         </extraDirectories>
@@ -618,7 +619,7 @@
                                 <image>flowable/flowable-jre:11.0.15</image>
                             </from>
                             <to>
-                                <image>flowable-rest</image>
+                                <image>flowable-rest-primotus</image>
                             </to>
                         </configuration>
                         <executions>
@@ -731,6 +732,12 @@
     </profiles>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter-rest</artifactId>

@@ -12,7 +12,9 @@
  */
 package org.flowable.rest.app;
 
+import org.flowable.rest.conf.CustomEngineConfiguration;
 import org.flowable.rest.app.properties.RestAppProperties;
+import org.flowable.rest.app.resolver.ExpressionResolverConfig;
 import org.flowable.rest.conf.BootstrapConfiguration;
 import org.flowable.rest.conf.DevelopmentConfiguration;
 import org.flowable.rest.conf.SecurityConfiguration;
@@ -20,22 +22,23 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author Filip Hrisafov
  */
 @EnableConfigurationProperties({
-    RestAppProperties.class
+        RestAppProperties.class
 })
 @Import({
-    BootstrapConfiguration.class,
-    SecurityConfiguration.class,
-    DevelopmentConfiguration.class
+        BootstrapConfiguration.class,
+        SecurityConfiguration.class,
+        DevelopmentConfiguration.class,
+        ExpressionResolverConfig.class,
+        //TestExpressionResolver.class,
+        CustomEngineConfiguration.class
+
+
 })
 @SpringBootApplication(proxyBeanMethods = false)
 public class FlowableRestApplication extends SpringBootServletInitializer {
@@ -44,20 +47,20 @@ public class FlowableRestApplication extends SpringBootServletInitializer {
         SpringApplication.run(FlowableRestApplication.class, args);
     }
 
-    @Bean
-    public WebMvcConfigurer swaggerDocsConfigurer() {
-        return new WebMvcConfigurer() {
-
-            @Override
-            public void addViewControllers(ViewControllerRegistry registry) {
-                registry.addViewController("/docs").setViewName("redirect:/docs/");
-                registry.addViewController("/docs/").setViewName("forward:/docs/index.html");
-            }
-        };
-    }
-
-    @Bean
-    public GrantedAuthorityDefaults grantedAuthorityDefaults(RestAppProperties commonAppProperties) {
-        return new GrantedAuthorityDefaults(commonAppProperties.getRolePrefix());
-    }
+//    @Bean
+//    public WebMvcConfigurer swaggerDocsConfigurer() {
+//        return new WebMvcConfigurer() {
+//
+//            @Override
+//            public void addViewControllers(ViewControllerRegistry registry) {
+//                registry.addViewController("/docs").setViewName("redirect:/docs/");
+//                registry.addViewController("/docs/").setViewName("forward:/docs/index.html");
+//            }
+//        };
+//    }
+//
+//    @Bean
+//    public GrantedAuthorityDefaults grantedAuthorityDefaults(RestAppProperties commonAppProperties) {
+//        return new GrantedAuthorityDefaults(commonAppProperties.getRolePrefix());
+//    }
 }
