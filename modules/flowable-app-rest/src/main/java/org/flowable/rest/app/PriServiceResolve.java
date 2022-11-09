@@ -25,26 +25,23 @@ public class PriServiceResolve {
         BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
         BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(payload.bEntityId, currentFlowElement.getId());
 
-        //RestTemplate restTemplate = new RestTemplate();
-        //HttpHeaders headers = new HttpHeaders();
-        //headers.setContentType(MediaType.APPLICATION_JSON);
-        //HttpEntity<BpmResolveRequest> request =
-        //        new HttpEntity<BpmResolveRequest>(bpmResolveRequest, headers);
-        //ResponseEntity<BpmResolveResponse> t =
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<BpmResolveRequest> request =
+                new HttpEntity<BpmResolveRequest>(bpmResolveRequest, headers);
+        //ResponseEntity<BpmResolveResponse> response =
         //        restTemplate.exchange("http://pri-frigga:3333/resolve", HttpMethod.POST, request, BpmResolveResponse.class);
 
-        BpmResolveResponse t = new BpmResolveResponse();
-        t.state = true;
-        t.bEntityId = bpmResolveRequest.bEntityId;
-        t.nodeId = bpmResolveRequest.nodeId;
+        ResponseEntity<BpmResolveResponse> response =
+                restTemplate.exchange("http://localhost:3333/resolve", HttpMethod.POST, request, BpmResolveResponse.class);
 
 
-        //System.out.println("Status = " + t.getStatusCode());
+        BpmResolveResponse t =  response.getBody();
+
         System.out.println("BEntityId = " + t.bEntityId);
         System.out.println("BENodeId = " + t.nodeId);
         System.out.println("Condition Eval = " + t.state);
-
-
 
         return t;
 

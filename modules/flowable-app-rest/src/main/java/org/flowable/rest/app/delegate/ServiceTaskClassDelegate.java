@@ -4,9 +4,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.flowable.rest.app.PriServiceResolve;
 import org.flowable.rest.app.contracts.BpmResolveResponse;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
-@Component("priTaskDelegate")
+@Service("priTaskDelegate")
+@Scope("prototype")
 public class ServiceTaskClassDelegate implements JavaDelegate {
 
     @Override

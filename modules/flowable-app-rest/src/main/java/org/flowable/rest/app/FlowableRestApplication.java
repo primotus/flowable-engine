@@ -35,7 +35,6 @@ import org.springframework.context.annotation.Import;
         SecurityConfiguration.class,
         DevelopmentConfiguration.class,
         ExpressionResolverConfig.class,
-        //TestExpressionResolver.class,
         CustomEngineConfiguration.class
 
 
@@ -44,7 +43,10 @@ import org.springframework.context.annotation.Import;
 public class FlowableRestApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
+
+        System.out.println("Primotus Flowable Running!!");
         SpringApplication.run(FlowableRestApplication.class, args);
+
     }
 
 //    @Bean

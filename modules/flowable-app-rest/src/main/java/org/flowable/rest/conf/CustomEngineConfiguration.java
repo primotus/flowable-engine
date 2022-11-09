@@ -52,23 +52,11 @@ import java.util.*;
 public class CustomEngineConfiguration {
 
     @Bean
-    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> customProcessEngineConfigurer(ApplicationContext context, SpringProcessEngineConfiguration cfg) {
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> customProcessEngineConfigurer(ApplicationContext context) {
         return (configuration) -> {
-
-            //configuration.getExpressionManager().getBeans()
-
-            System.out.println("HHHH" + cfg.getExpressionManager());
-
-
-            //System.out.println("HHHHASDASDASDASD " + configuration.getExpressionManager());
-
             CustomExpressionManager defaultExpressionManager = new CustomExpressionManager();
             defaultExpressionManager.setBeans(new SpringBeanFactoryProxyMap(context));
-
-//            //defaultExpressionManager.addPostDefaultResolver(new FlowELResolver());
             configuration.setExpressionManager(defaultExpressionManager);
-            // do your own thing with the beans and configurations.
-            // In theory you can even apply your custom loading of properties here. However, I highly suggest to use the Spring Boot Externalized Configuration
         };
     }
 }

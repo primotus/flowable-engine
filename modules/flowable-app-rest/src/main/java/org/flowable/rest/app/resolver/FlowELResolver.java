@@ -19,12 +19,16 @@ public class FlowELResolver extends VariableContainerELResolver {
         VariableContainer variableContainer = getVariableContainer(context);
 
         if (base == null && BpmConstant.FLOW_EXPRESSION.equals(property) && variableContainer instanceof ExecutionEntity) {
+
+            System.out.println(property);
+            System.out.println(base);
+
             PriServiceResolve priResolver = new PriServiceResolve();
             BpmResolveResponse response = priResolver.exec((ExecutionEntity) variableContainer);
             context.setPropertyResolved(true);
             return response.state;
         }
-        return null;
+        return true;
     }
 
     @Override
