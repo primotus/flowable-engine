@@ -14,7 +14,7 @@ public class ServiceTaskClassDelegate implements JavaDelegate {
     @Override
     public void execute(DelegateExecution execution) {
         PriServiceResolve resolver = new PriServiceResolve();
-        BpmResolveResponse response = resolver.exec(execution);
+        BpmResolveResponse response = resolver.exec(execution, execution.getCurrentFlowElement().getId());
         System.out.println("Delegating function to Frigga Resolver: " + response.state);
     }
 }

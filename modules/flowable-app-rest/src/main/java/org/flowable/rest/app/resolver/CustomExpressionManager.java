@@ -29,7 +29,7 @@ public class CustomExpressionManager extends ProcessExpressionManager {
     @Override
     protected List<ELResolver> createDefaultElResolvers() {
         List<ELResolver> resolvers = super.createDefaultElResolvers();
-        resolvers.add(new FlowELResolver());
+        //resolvers.add(new FlowELResolver());
         return resolvers;
     }
 }

@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Import;
         SecurityConfiguration.class,
         DevelopmentConfiguration.class,
         ExpressionResolverConfig.class,
-        CustomEngineConfiguration.class
+        //CustomEngineConfiguration.class
 
 
 })

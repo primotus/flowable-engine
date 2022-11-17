@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 public class ExpressionResolverConfig {
 
     @Bean
-    public ExpressionResolver expressionResolver(){
+    public ExpressionResolver priFlowExpression(){
         return new ExpressionResolver();
     }
 
