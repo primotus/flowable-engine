@@ -14,21 +14,21 @@ import org.flowable.rest.app.contracts.BpmResolveResponse;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.sound.midi.Soundbank;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PriServiceResolve {
+
+    //static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
+    static String URL_FRIGGA =  "http://localhost:3333/resolve";
+
 
     public <T extends DelegateExecution> BpmResolveResponse exec(T execution, String nodeID){
         ObjectNode data = (ObjectNode) execution.getVariable(BpmConstant.PROCESS_VARIABLE_NAME);
         if (data == null) {
             throw new RuntimeException("data was not found in execution " + execution.getId());
         }
-
-        System.out.println("=================================");
-        System.out.println(nodeID);
-        System.out.println("=================================");
-
         FlowElement currentElement = execution.getCurrentFlowElement();
         if ( currentElement instanceof Gateway ) {
             List<SequenceFlow> flow = ((Gateway) currentElement).getOutgoingFlows().stream().filter(sequenceFlow -> {
@@ -47,7 +47,14 @@ public class PriServiceResolve {
 
         ObjectMapper mapper = new ObjectMapper();
         BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
-        BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(payload.bEntityId, nodeID);
+        BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(
+                payload.bEntityId,
+                nodeID,
+                execution.getProcessInstanceId(),
+                execution.getProcessDefinitionId());
+
+        System.out.println("Definition ID" + execution.getProcessDefinitionId());
+
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -55,11 +62,7 @@ public class PriServiceResolve {
         HttpEntity<BpmResolveRequest> request =
                 new HttpEntity<BpmResolveRequest>(bpmResolveRequest, headers);
         ResponseEntity<BpmResolveResponse> response =
-                restTemplate.exchange("http://pri-frigga:3333/resolve", HttpMethod.POST, request, BpmResolveResponse.class);
-
-        //ResponseEntity<BpmResolveResponse> response =
-        //        restTemplate.exchange("http://localhost:3333/resolve", HttpMethod.POST, request, BpmResolveResponse.class);
-
+                restTemplate.exchange(URL_FRIGGA, HttpMethod.POST, request, BpmResolveResponse.class);
 
         BpmResolveResponse t =  response.getBody();
 
