@@ -23,6 +23,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Import;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
 /**
  * @author Filip Hrisafov
@@ -42,9 +47,16 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication(proxyBeanMethods = false)
 public class FlowableRestApplication extends SpringBootServletInitializer {
 
-    public static void main(String[] args) {
+    protected static final Logger LOGGER = LoggerFactory.getLogger(FlowableRestApplication.class);
 
-        System.out.println("Primotus Flowable Running!!");
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        LOGGER.info("Primotus Rest App Flowable on startup");
+        super.onStartup(servletContext);
+    }
+
+    public static void main(String[] args) {
+        LOGGER.info("Primotus Rest App Flowable is Running");
         SpringApplication.run(FlowableRestApplication.class, args);
 
     }

@@ -6,22 +6,24 @@ import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.Gateway;
 import org.flowable.bpmn.model.SequenceFlow;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.rest.app.contracts.BpmConstant;
 import org.flowable.rest.app.contracts.BpmProcessPayload;
 import org.flowable.rest.app.contracts.BpmResolveRequest;
 import org.flowable.rest.app.contracts.BpmResolveResponse;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.sound.midi.Soundbank;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PriServiceResolve {
 
-    //static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
-    static String URL_FRIGGA =  "http://localhost:3333/resolve";
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PriServiceResolve.class);
+
+    static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
+    //static String URL_FRIGGA =  "http://localhost:3333/resolve";
 
 
     public <T extends DelegateExecution> BpmResolveResponse exec(T execution, String nodeID){
@@ -32,15 +34,12 @@ public class PriServiceResolve {
         FlowElement currentElement = execution.getCurrentFlowElement();
         if ( currentElement instanceof Gateway ) {
             List<SequenceFlow> flow = ((Gateway) currentElement).getOutgoingFlows().stream().filter(sequenceFlow -> {
-                System.out.println(sequenceFlow.getId());
-                System.out.println(nodeID);
                 return sequenceFlow.getId().equals(nodeID);
             }).collect(Collectors.toList());
             if ( flow.size() == 0 ){
                 BpmResolveResponse t =  new BpmResolveResponse();
                 t.state = false;
                 t.nodeId = nodeID;
-                System.out.println("NodeID is not part of Gateway");
                 return t;
             }
         }
@@ -48,13 +47,13 @@ public class PriServiceResolve {
         ObjectMapper mapper = new ObjectMapper();
         BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
         BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(
-                payload.bEntityId,
+                payload.bizEntityID,
                 nodeID,
                 execution.getProcessInstanceId(),
                 execution.getProcessDefinitionId());
 
         System.out.println("Definition ID" + execution.getProcessDefinitionId());
-
+        System.out.println("Instance ID" + execution.getProcessDefinitionId());
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -66,9 +65,9 @@ public class PriServiceResolve {
 
         BpmResolveResponse t =  response.getBody();
 
-        System.out.println("BEntityId = " + t.bEntityId);
-        System.out.println("BENodeId = " + t.nodeId);
-        System.out.println("Condition Eval = " + t.state);
+        System.out.println("BE - bizEntityID = " + t.bizEntityID);
+        System.out.println("BE - NodeId = " + t.nodeId);
+        System.out.println("BE - Condition Eval = " + t.state);
 
         return t;
 
