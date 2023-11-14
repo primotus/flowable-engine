@@ -1,0 +1,76 @@
+package org.flowable.rest.app;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.Gateway;
+import org.flowable.bpmn.model.SequenceFlow;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.rest.app.contracts.BpmConstant;
+import org.flowable.rest.app.contracts.BpmProcessPayload;
+import org.flowable.rest.app.contracts.BpmResolveRequest;
+import org.flowable.rest.app.contracts.BpmResolveResponse;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class PriServiceResolve {
+
+    protected static final Logger LOGGER = LoggerFactory.getLogger(PriServiceResolve.class);
+
+    static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
+    //static String URL_FRIGGA =  "http://localhost:3333/resolve";
+
+
+    public <T extends DelegateExecution> BpmResolveResponse exec(T execution, String nodeID){
+        ObjectNode data = (ObjectNode) execution.getVariable(BpmConstant.PROCESS_VARIABLE_NAME);
+        if (data == null) {
+            throw new RuntimeException("data was not found in execution " + execution.getId());
+        }
+        FlowElement currentElement = execution.getCurrentFlowElement();
+        if ( currentElement instanceof Gateway ) {
+            List<SequenceFlow> flow = ((Gateway) currentElement).getOutgoingFlows().stream().filter(sequenceFlow -> {
+                return sequenceFlow.getId().equals(nodeID);
+            }).collect(Collectors.toList());
+            if ( flow.size() == 0 ){
+                BpmResolveResponse t =  new BpmResolveResponse();
+                t.state = false;
+                t.nodeId = nodeID;
+                return t;
+            }
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
+        BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(
+                payload.bizEntityID,
+                nodeID,
+                execution.getProcessInstanceId(),
+                execution.getProcessDefinitionId());
+
+        System.out.println("Definition ID" + execution.getProcessDefinitionId());
+        System.out.println("Instance ID" + execution.getProcessDefinitionId());
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<BpmResolveRequest> request =
+                new HttpEntity<BpmResolveRequest>(bpmResolveRequest, headers);
+        ResponseEntity<BpmResolveResponse> response =
+                restTemplate.exchange(URL_FRIGGA, HttpMethod.POST, request, BpmResolveResponse.class);
+
+        BpmResolveResponse t =  response.getBody();
+
+        System.out.println("BE - bizEntityID = " + t.bizEntityID);
+        System.out.println("BE - NodeId = " + t.nodeId);
+        System.out.println("BE - Condition Eval = " + t.state);
+
+        return t;
+
+    }
+
+}

@@ -559,10 +559,10 @@
                         <artifactId>jib-maven-plugin</artifactId>
                         <configuration>
                             <from>
-                                <image>flowable/flowable-jre:11.0.15</image>
+                                <image>flowable/flowable-jre:17.0.8</image>
                             </from>
                             <to>
-                                <image>flowable-rest</image>
+                                <image>flowable-rest-primotus-v1</image>
                             </to>
                         </configuration>
                         <executions>
@@ -601,7 +601,7 @@
                         <artifactId>jib-maven-plugin</artifactId>
                         <configuration>
                             <from>
-                                <image>flowable/flowable-jre:11.0.15</image>
+                                <image>flowable/flowable-jre:17.0.8</image>
                             </from>
                             <to>
                                 <image>flowable/flowable-rest:${project.version}</image>
@@ -647,7 +647,7 @@
                         <artifactId>jib-maven-plugin</artifactId>
                         <configuration>
                             <from>
-                                <image>flowable/flowable-jre:11.0.15</image>
+                                <image>flowable/flowable-jre:17.0.8</image>
                             </from>
                             <to>
                                 <image>flowable/flowable-rest:${project.version}</image>
@@ -675,6 +675,12 @@
     </profiles>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter-rest</artifactId>
