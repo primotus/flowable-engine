@@ -22,15 +22,15 @@ public class PriServiceResolve {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(PriServiceResolve.class);
 
-    static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
-    //static String URL_FRIGGA =  "http://localhost:3333/resolve";
+    //static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
+    static String URL_FRIGGA =  "http://localhost:3333/resolve";
 
 
     public <T extends DelegateExecution> BpmResolveResponse exec(T execution, String nodeID){
-        ObjectNode data = (ObjectNode) execution.getVariable(BpmConstant.PROCESS_VARIABLE_NAME);
-        if (data == null) {
-            throw new RuntimeException("data was not found in execution " + execution.getId());
-        }
+        //ObjectNode data = (ObjectNode) execution.getVariable(BpmConstant.PROCESS_VARIABLE_NAME);
+        //if (data == null) {
+        //    throw new RuntimeException("data was not found in execution " + execution.getId());
+        //}
         FlowElement currentElement = execution.getCurrentFlowElement();
         if ( currentElement instanceof Gateway ) {
             List<SequenceFlow> flow = ((Gateway) currentElement).getOutgoingFlows().stream().filter(sequenceFlow -> {
@@ -45,15 +45,16 @@ public class PriServiceResolve {
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
+        //BpmProcessPayload payload =  mapper.convertValue(data, BpmProcessPayload.class);
         BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(
-                payload.bizEntityID,
+                //payload.bizEntityID,
                 nodeID,
-                execution.getProcessInstanceId(),
+                execution.getId(),
                 execution.getProcessDefinitionId());
 
         System.out.println("Definition ID" + execution.getProcessDefinitionId());
-        System.out.println("Instance ID" + execution.getProcessDefinitionId());
+        System.out.println("Instance ID" + execution.getProcessInstanceId());
+        System.out.println("Execution ID" + execution.getId());
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();

@@ -56,6 +56,17 @@ public class BootstrapConfiguration implements EnvironmentAware {
         this.restAppProperties = restAppProperties;
     }
 
+//    @Bean
+//    public CommandLineRunner init() {
+//        return args -> {
+//            // Registrar el Event Listener
+//            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+//            processEngine.getProcessEngineConfiguration()
+//                    .getEventDispatcher()
+//                    .addEventListener(new PriBpmListener());
+//        };
+//    }
+
     /**
      * Initialize the rest admin user
      */

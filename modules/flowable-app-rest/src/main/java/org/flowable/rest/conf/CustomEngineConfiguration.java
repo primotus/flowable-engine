@@ -1,28 +1,13 @@
 package org.flowable.rest.conf;
 
 
-import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
-import org.flowable.common.engine.impl.el.DefaultExpressionManager;
-import org.flowable.engine.ProcessEngineConfiguration;
-import org.flowable.engine.parse.BpmnParseHandler;
-import org.flowable.rest.app.parser.GenericParseHandler;
-import org.flowable.rest.app.resolver.CustomExpressionManager;
-import org.flowable.rest.app.resolver.FlowELResolver;
+import org.flowable.rest.app.listener.PriBpmListener;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.flowable.spring.boot.EngineConfigurationConfigurer;
-import org.flowable.spring.boot.ProcessEngineAutoConfiguration;
-import org.flowable.spring.boot.RestApiAutoConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.Ordered;
-
-import java.util.*;
 
 //@Configuration
 ////@AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
@@ -47,28 +32,24 @@ import java.util.*;
 //        };
 //    }
 //}
+
+
 @Configuration(proxyBeanMethods = false)
-@AutoConfigureAfter(RestApiAutoConfiguration.class)
+@AutoConfigureAfter(BootstrapConfiguration.class)
 public class CustomEngineConfiguration {
 
     @Bean
-    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> customProcessEngineConfigurer(ApplicationContext context, SpringProcessEngineConfiguration cfg) {
+    public EngineConfigurationConfigurer<SpringProcessEngineConfiguration> customProcessEngineConfigurer(ApplicationContext context) {
         return (configuration) -> {
+            SpringProcessEngineConfiguration cfg = context.getBean(SpringProcessEngineConfiguration.class);
+            // Registro del listener del proceso
+            PriBpmListener processListener = new PriBpmListener();
 
-            //configuration.getExpressionManager().getBeans()
-
-            System.out.println("HHHH" + cfg.getExpressionManager());
-
-
-            //System.out.println("HHHHASDASDASDASD " + configuration.getExpressionManager());
-
-            CustomExpressionManager defaultExpressionManager = new CustomExpressionManager();
-            defaultExpressionManager.setBeans(new SpringBeanFactoryProxyMap(context));
-
-//            //defaultExpressionManager.addPostDefaultResolver(new FlowELResolver());
-            configuration.setExpressionManager(defaultExpressionManager);
-            // do your own thing with the beans and configurations.
-            // In theory you can even apply your custom loading of properties here. However, I highly suggest to use the Spring Boot Externalized Configuration
+            if ( cfg.getEventDispatcher() == null ) {
+                cfg.setEventDispatcher(new org.flowable.common.engine.impl.event.FlowableEventDispatcherImpl());
+                cfg.getEventDispatcher().addEventListener(processListener);
+                System.out.println("Event Dispatcher" + cfg.getEventDispatcher());
+            }
         };
     }
 }
