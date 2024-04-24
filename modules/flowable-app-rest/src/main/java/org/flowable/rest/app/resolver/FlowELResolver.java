@@ -30,7 +30,7 @@ public class FlowELResolver extends VariableContainerELResolver {
             ExecutionEntity e = (ExecutionEntity) variableContainer;
             System.out.println(e.getActivityId());
 
-            PriServiceResolve priResolver = new PriServiceResolve();
+            PriServiceResolve priResolver = new PriServiceResolve(null, null);
             BpmResolveResponse response = priResolver.exec((ExecutionEntity) variableContainer, null);
             context.setPropertyResolved(true);
             return response.state;

@@ -10,7 +10,12 @@ import org.flowable.rest.app.contracts.BpmConstant;
 import org.flowable.rest.app.contracts.BpmProcessPayload;
 import org.flowable.rest.app.contracts.BpmResolveRequest;
 import org.flowable.rest.app.contracts.BpmResolveResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.*;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +25,20 @@ import java.util.stream.Collectors;
 
 public class PriServiceResolve {
 
+    private String friggaHost;
+    private String friggaPort;
+    public PriServiceResolve(String frigaHost, String friggaPort) {
+        this.friggaHost = frigaHost;
+        this.friggaPort = friggaPort;
+    }
     protected static final Logger LOGGER = LoggerFactory.getLogger(PriServiceResolve.class);
 
-    //static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
-    static String URL_FRIGGA =  "http://localhost:3333/resolve";
-
-
+   //static String URL_FRIGGA =  "http://pri-frigga:3333/resolve";
+   //static String URL_FRIGGA =  "http://localhost:3333/resolve";
+   //static String URL_FRIGGA =  "http://frigga:9902/resolve";
     public <T extends DelegateExecution> BpmResolveResponse exec(T execution, String nodeID){
-        //ObjectNode data = (ObjectNode) execution.getVariable(BpmConstant.PROCESS_VARIABLE_NAME);
-        //if (data == null) {
-        //    throw new RuntimeException("data was not found in execution " + execution.getId());
-        //}
+        String URL_FRIGGA = "http://" + this.friggaHost + ":" + this.friggaPort + "/resolve";
+
         FlowElement currentElement = execution.getCurrentFlowElement();
         if ( currentElement instanceof Gateway ) {
             List<SequenceFlow> flow = ((Gateway) currentElement).getOutgoingFlows().stream().filter(sequenceFlow -> {
@@ -49,7 +57,7 @@ public class PriServiceResolve {
         BpmResolveRequest bpmResolveRequest = new BpmResolveRequest(
                 //payload.bizEntityID,
                 nodeID,
-                execution.getId(),
+                execution.getProcessInstanceId(),
                 execution.getProcessDefinitionId());
 
         System.out.println("Definition ID" + execution.getProcessDefinitionId());
@@ -61,6 +69,9 @@ public class PriServiceResolve {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<BpmResolveRequest> request =
                 new HttpEntity<BpmResolveRequest>(bpmResolveRequest, headers);
+
+        LOGGER.info("Sending resolve to Frigga: {}", URL_FRIGGA);
+
         ResponseEntity<BpmResolveResponse> response =
                 restTemplate.exchange(URL_FRIGGA, HttpMethod.POST, request, BpmResolveResponse.class);
 

@@ -8,7 +8,7 @@ public class ExpressionResolver {
     public Boolean eval(ExecutionEntity execution, String nodeId){
 
         if ( execution != null && nodeId != null ){
-            PriServiceResolve priResolver = new PriServiceResolve();
+            PriServiceResolve priResolver = new PriServiceResolve(null, null);
             BpmResolveResponse response = priResolver.exec(execution, nodeId);
             return ( response != null && response.state );
         }
