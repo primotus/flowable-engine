@@ -500,9 +500,10 @@
                             <protocol>org.apache.coyote.http11.Http11NioProtocol</protocol>
                             <systemProperties>
                                 <spring.datasource.driver-class-name>org.postgresql.Driver</spring.datasource.driver-class-name>
-                                <spring.datasource.url>jdbc:postgresql://localhost:5432/flowable</spring.datasource.url>
-                                <spring.datasource.username>flowable</spring.datasource.username>
-                                <spring.datasource.password>flowable</spring.datasource.password>
+                                <!--spring.datasource.url>jdbc:postgresql://localhost:5432/flowable</spring.datasource.url-->
+                                <spring.datasource.url>jdbc:postgresql://localhost:5433/postgres</spring.datasource.url>
+                                <spring.datasource.username>admin</spring.datasource.username>
+                                <spring.datasource.password>1234</spring.datasource.password>
                                 <com.sun.management.jmxremote.port>4000</com.sun.management.jmxremote.port>
                             </systemProperties>
                         </configuration>
@@ -685,6 +686,13 @@
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring-boot-starter-rest</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring-boot-starter-app-rest</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

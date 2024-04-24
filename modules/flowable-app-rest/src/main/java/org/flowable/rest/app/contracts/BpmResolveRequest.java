@@ -1,17 +1,17 @@
 package org.flowable.rest.app.contracts;
 
-import org.flowable.bpmn.model.FlowElement;
-
 public class BpmResolveRequest {
     //public String bizEntityID;
-    public String nodeId;
+    public String flExecutionID;
 
-    public String executionId;
-    public String definitionId;
-    public BpmResolveRequest(/*String bizEntityID, */String nodeId, String executionId, String definitionId){
-        //this.bizEntityID = bizEntityID;
-        this.nodeId =  nodeId;;
-        this.executionId = executionId;
-        this.definitionId = definitionId;
+    public String flFlowID;
+    public String flProcessID;
+
+    public String flActDefID;
+    public BpmResolveRequest(String flExecutionID, String flFlowID, String flProcessID, String flActDefID){
+        this.flExecutionID =  flExecutionID;;
+        this.flFlowID = flFlowID;
+        this.flProcessID = flProcessID;
+        this.flActDefID = flActDefID;
     }
 }
