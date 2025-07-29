@@ -15,18 +15,22 @@ import org.slf4j.LoggerFactory;
 @Scope("prototype")
 public class ServiceTaskClassDelegate implements JavaDelegate {
 
-    @Value("${primotus.frigga.server.port}")
-    private String friggaPort;
+    @Value("${primotus.webhook.server.host}")
+    private String webHookHost;
 
-    @Value("${primotus.frigga.server.host}")
-    private String friggaHost;
+    @Value("${primotus.webhook.server.port}")
+    private String webHookPort;
+
+    @Value("${primotus.webhook.server.path}")
+    private String webHookPath;
+
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(ServiceTaskClassDelegate.class);
 
     @Override
     public void execute(DelegateExecution execution) {
-        PriServiceResolve resolver = new PriServiceResolve(friggaHost, friggaPort);
+        PriServiceResolve resolver = new PriServiceResolve(webHookHost, webHookPort, webHookPath);
         BpmResolveResponse response = resolver.exec(execution, execution.getCurrentFlowElement().getId());
-        LOGGER.info("Delegating function to Frigga Resolver: " + response.state);
+        LOGGER.info("Delegating function to Frigga Resolver: " + response.conditionResult);
     }
 }

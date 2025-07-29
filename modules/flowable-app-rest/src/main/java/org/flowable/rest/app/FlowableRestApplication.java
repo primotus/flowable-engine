@@ -16,17 +16,13 @@ package org.flowable.rest.app;
 import jakarta.annotation.PostConstruct;
 import org.flowable.rest.app.properties.RestAppProperties;
 import org.flowable.rest.app.resolver.ExpressionResolverConfig;
-import org.flowable.rest.conf.BootstrapConfiguration;
-import org.flowable.rest.conf.CustomEngineConfiguration;
-import org.flowable.rest.conf.DevelopmentConfiguration;
-import org.flowable.rest.conf.SecurityConfiguration;
+import org.flowable.rest.conf.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import org.slf4j.Logger;
@@ -35,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
 
 /**
  * @author Filip Hrisafov
@@ -50,7 +44,8 @@ import java.util.Arrays;
         DevelopmentConfiguration.class,
         ExpressionResolverConfig.class,
         //TestExpressionResolver.class,
-        CustomEngineConfiguration.class
+        BpmCustomEngineConfiguration.class,
+        DmnCustomEngineConfiguration.class
 
 
 })
@@ -60,11 +55,14 @@ public class FlowableRestApplication extends SpringBootServletInitializer {
     @Autowired
     private Environment env;
 
-    @Value("${primotus.frigga.server.port}")
+    @Value("${primotus.webhook.server.host}")
+    private String friggaHost;
+
+    @Value("${primotus.webhook.server.port}")
     private String friggaPort;
 
-    @Value("${primotus.frigga.server.host}")
-    private String friggaHost;
+    @Value("${primotus.webhook.server.path}")
+    private String friggaPath;
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(FlowableRestApplication.class);
 
@@ -76,14 +74,17 @@ public class FlowableRestApplication extends SpringBootServletInitializer {
 
     @PostConstruct
     public void listEnvironmentVariables() {
-        LOGGER.info("[PRIMOTUS] API_FRIGGA_SERVER "+ env.getProperty("primotus.frigga.server.host"));
-        LOGGER.info("[PRIMOTUS] API_FRIGGA_PORT_EXT "+ env.getProperty("primotus.frigga.server.port"));
+        LOGGER.info("[PRIMOTUS] WEB_HOOK_SERVER "+ env.getProperty("primotus.webhook.server.host"));
+        LOGGER.info("[PRIMOTUS] WEB_HOOK_PORT_EXT "+ env.getProperty("primotus.webhook.server.port"));
+        LOGGER.info("[PRIMOTUS] WEB_HOOK_PATH "+ env.getProperty("primotus.webhook.server.path"));
 
         LOGGER.info("[PRIMOTUS] FLOWABLE_SERVER "+ env.getProperty("primotus.flowable_server"));
         LOGGER.info("[PRIMOTUS] FLOWABLE_SCHEMA "+ env.getProperty("primotus.flowable_schema"));
 
-        LOGGER.info("[PRIMOTUS] PORT INYECTED: "+ friggaPort);
         LOGGER.info("[PRIMOTUS] SERVER INYECTED: "+ friggaHost);
+        LOGGER.info("[PRIMOTUS] PORT INYECTED: "+ friggaPort);
+        LOGGER.info("[PRIMOTUS] PATH INYECTED: "+ friggaPath);
+
     }
     public static void main(String[] args) {
         SpringApplication.run(FlowableRestApplication.class, args);

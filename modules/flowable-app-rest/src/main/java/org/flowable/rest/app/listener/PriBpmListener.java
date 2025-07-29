@@ -2,29 +2,17 @@ package org.flowable.rest.app.listener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.flowable.common.engine.api.delegate.event.*;
+import org.flowable.common.engine.impl.el.FlowableElContext;
 import org.flowable.engine.delegate.event.FlowableActivityEvent;
-import org.flowable.engine.delegate.event.FlowableProcessEngineEvent;
-import org.flowable.engine.delegate.event.FlowableProcessStartedEvent;
-import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
-import org.flowable.engine.runtime.Execution;
-import org.flowable.rest.app.FlowableRestApplication;
-import org.flowable.rest.app.contracts.BpmResolveRequest;
-import org.flowable.rest.app.contracts.BpmResolveResponse;
-import org.h2.util.json.JSONObject;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.*;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * MixIn to ignore properties of the ExecutionEntityImpl class for circular reference
@@ -51,6 +39,9 @@ abstract class ExecutionEntityImplMixIn {
 
     @JsonIgnore
     protected ExecutionEntityImpl rootProcessInstance;
+
+    @JsonIgnore
+    protected FlowableElContext cachedElContext;
 }
 
 
@@ -66,15 +57,18 @@ public class PriBpmListener implements FlowableEventListener {
     //static String URL_FRIGGA =  "http://pri-frigga:3333/eventHandler";
     //static String URL_FRIGGA =  "http://frigga:9902/eventHandler";
 
-    private String friggaPort;
-    private String friggaHost;
+    private final String webHookHost;
+    private final String webHookPort;
+    private final String webHookPath;
 
-    private ObjectMapper mapper = new ObjectMapper();
-    private RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-    public PriBpmListener(String friggaHost, String friggaPort) {
-        this.friggaHost = friggaHost;
-        this.friggaPort = friggaPort;
+    public PriBpmListener(String webHookHost, String webHookPort,  String webHookPath) {
+        this.webHookHost = webHookHost;
+        this.webHookPort = webHookPort;
+        this.webHookPath = webHookPath;
+        this.mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         //Configure the ObjectMapper to ignore properties of the ExecutionEntityImpl class for circular reference
         this.mapper.addMixIn(ExecutionEntityImpl.class, ExecutionEntityImplMixIn.class);
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
@@ -86,7 +80,7 @@ public class PriBpmListener implements FlowableEventListener {
     @Override
     public void onEvent(FlowableEvent event) {
 
-        String URL_FRIGGA = "http://" + this.friggaHost + ":" + this.friggaPort + "/eventHandler";
+        String URL_WEBHOOK = "http://" + this.webHookHost + ":" + this.webHookPort + this.webHookPath + "/eventHandler";
 
         if (event.getType() == FlowableEngineEventType.ACTIVITY_STARTED) {
             FlowableActivityEvent activityEvent = (FlowableActivityEvent) event;
@@ -109,11 +103,11 @@ public class PriBpmListener implements FlowableEventListener {
                 new HttpEntity<FlowableEvent>(event, headers);
 
         try {
-            LOGGER.info("Sending event to Frigga: {}", URL_FRIGGA);
-            // Send the event to Frigga
-            ResponseEntity<Void> response = this.restTemplate.exchange(URL_FRIGGA, HttpMethod.POST, request, Void.class);
+            LOGGER.info("Sending event to WEB HOOK: {}", URL_WEBHOOK);
+            // Send the event to WEB HOOK
+            ResponseEntity<Void> response = this.restTemplate.exchange(URL_WEBHOOK, HttpMethod.POST, request, Void.class);
         }catch (Exception e){
-            LOGGER.error("The FRIGGA service is not available to dispatch the following event: {} - {}", event.getType(), e.getMessage());
+            LOGGER.error("The WEB HOOK service is not available to dispatch the following event: {} - {}", event.getType(), e.getMessage());
         }
     }
 
